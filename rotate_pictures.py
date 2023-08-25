@@ -5,6 +5,9 @@ import cv2
 import imageio
 
 def main():
+    """
+    Rotates images in a folder and saves them to a new folder
+    """
     outPath = r"C:\Users\rober\Desktop\Programmering\Python\Github\Blink_tracking\data2\90"
     path = r"C:\Users\rober\Desktop\Programmering\Python\Github\Blink_tracking\data2\Closed"
 

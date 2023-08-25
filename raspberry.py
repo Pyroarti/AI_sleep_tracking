@@ -4,6 +4,10 @@ import time
 
 
 class Servo:
+    """
+    Class for controlling the servos
+    """
+
     def __init__(self):
 
         # IO mapping
@@ -14,13 +18,17 @@ class Servo:
         GPIO.setup(servo_x_pin, GPIO.OUT)
         GPIO.setup(servo_y_pin, GPIO.OUT)
 
-        self.servo_x = GPIO.PWM(17, 50)
-        self.servo_y = GPIO.PWM(18, 50)
+        self.servo_x = GPIO.PWM(servo_x_pin, 50)
+        self.servo_y = GPIO.PWM(servo_y_pin, 50)
 
         self.servo_x.start(0)
         self.servo_y.start(0)
 
     def set_servo_angle(self, servo, angle):
+        """
+        Sets the angle of the servo
+        """
+
         if angle > 90 or angle < 30:
             print("Invalid angle")
             return
@@ -34,11 +42,6 @@ class Servo:
         time.sleep(1)
 
 
-    def run_servo(self):
-        #set_servo_angle(servo_x, 0)
-        self.set_servo_angle(self.servo_y, 30)
-        self.set_servo_angle(self.servo_y, 90)
-
     def stop_servo(self):
         self.servo_x.stop()
         self.servo_y.stop()
@@ -46,6 +49,11 @@ class Servo:
         print("Stopped")
 
 class Connection:
+    """
+    Class for handling the connection to the client and receiving data from pc
+    and retreiving the servo data
+    """
+
     def __init__(self):
         self.HOST = '192.168.0.124'  # IP Raspberry Pi
         self.PORT = 65432
@@ -61,6 +69,7 @@ class Connection:
         connection.listen()
         print(f"Listening on {self.HOST}:{self.PORT}")
         self.conn, self.addr = connection.accept()
+
 
     def get_data(self):
         while True:
@@ -85,7 +94,7 @@ def main():
         while True:
             connection.get_data()
             if connection.servo_x_angle is not None and connection.servo_y_angle is not None:
-                servo.set_servo_angle(servo.servo_x, connection.servo_x_angle)
+                #servo.set_servo_angle(servo.servo_x, connection.servo_x_angle)
                 servo.set_servo_angle(servo.servo_y, connection.servo_y_angle)
 
     except KeyboardInterrupt:

@@ -1,6 +1,8 @@
 from PIL import Image
 import os
 
+# Takes all images in a folder and inverts them to make more data
+
 input_folder = r'C:\Users\rober\Desktop\Programmering\Python\Github\Blink_trackV2\data\open_to_rotate'
 output_folder = r'C:\Users\rober\Desktop\Programmering\Python\Github\Blink_trackV2\data\open_rotated'
 
