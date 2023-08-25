@@ -18,11 +18,9 @@ servo2.start(0)
 
 def set_servo_angle(servo, angle):
     duty = angle / 18 + 2
-    GPIO.output(servo, True)
     servo.ChangeDutyCycle(duty)
     time.sleep(1)
-    GPIO.output(servo, False)
-    servo.ChangeDutyCycle(0)
+    #servo.ChangeDutyCycle(0)
 
 HOST = '192.168.0.124'  # Local IP Address of Raspberry Pi
 PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
@@ -45,8 +43,8 @@ while True:
                 servo_x_angle, servo_y_angle = map(float, data.decode('utf-8').split(","))
                 print(f"Received angles X: {servo_x_angle}, Y: {servo_y_angle}")
 
-            #set_servo_angle(servo1, servo_x_angle)
-            #set_servo_angle(servo2, servo_y_angle)
+                set_servo_angle(servo1, servo_x_angle)
+                set_servo_angle(servo2, servo_y_angle)
 
 
 
