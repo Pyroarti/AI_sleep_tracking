@@ -2,50 +2,99 @@ import socket
 import RPi.GPIO as GPIO
 import time
 
-# Setup GPIO
-GPIO.setmode(GPIO.BCM)
 
-# Setup GPIO
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)
-GPIO.setup(18, GPIO.OUT)
+class Servo:
+    def __init__(self):
 
-servo1 = GPIO.PWM(17, 50) # Pin 17, 50Hz frequency
-servo2 = GPIO.PWM(18, 50) # Pin 18, 50Hz frequency
+        # IO mapping
+        servo_x_pin = 17
+        servo_y_pin = 18
 
-servo1.start(0)
-servo2.start(0)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(servo_x_pin, GPIO.OUT)
+        GPIO.setup(servo_y_pin, GPIO.OUT)
 
-def set_servo_angle(servo, angle):
-    duty = angle / 18 + 2
-    servo.ChangeDutyCycle(duty)
-    time.sleep(1)
-    #servo.ChangeDutyCycle(0)
+        self.servo_x = GPIO.PWM(17, 50)
+        self.servo_y = GPIO.PWM(18, 50)
 
-HOST = '192.168.0.124'  # Local IP Address of Raspberry Pi
-PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
+        self.servo_x.start(0)
+        self.servo_y.start(0)
 
-while True:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((HOST, PORT))
-        s.listen()
-        print(f"Listening on {HOST}:{PORT}")
-        conn, addr = s.accept()
-        with conn:
-            print('Connected by', addr)
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    print("no data recived")
-                    break
-            
-                servo_x_angle, servo_y_angle = map(float, data.decode('utf-8').split(","))
-                print(f"Received angles X: {servo_x_angle}, Y: {servo_y_angle}")
+    def set_servo_angle(self, servo, angle):
+        if angle > 90 or angle < 30:
+            print("Invalid angle")
+            return
 
-                set_servo_angle(servo1, servo_x_angle)
-                set_servo_angle(servo2, servo_y_angle)
+        duty = (angle + 90) * (12-2) / 180 + 2
+
+        print(duty)
+        servo.ChangeDutyCycle(duty)
+        time.sleep(1)
+        servo.ChangeDutyCycle(0)
+        time.sleep(1)
 
 
+    def run_servo(self):
+        #set_servo_angle(servo_x, 0)
+        self.set_servo_angle(self.servo_y, 30)
+        self.set_servo_angle(self.servo_y, 90)
+
+    def stop_servo(self):
+        self.servo_x.stop()
+        self.servo_y.stop()
+        GPIO.cleanup()
+        print("Stopped")
+
+class Connection:
+    def __init__(self):
+        self.HOST = '192.168.0.124'  # IP Raspberry Pi
+        self.PORT = 65432
+
+        self.conn = None
+        self.addr = None
+        self.data = None
+        self.servo_x_angle = None
+        self.servo_y_angle = None
+
+        connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connection.bind((self.HOST, self.PORT))
+        connection.listen()
+        print(f"Listening on {self.HOST}:{self.PORT}")
+        self.conn, self.addr = connection.accept()
+
+    def get_data(self):
+        while True:
+            self.data = self.conn.recv(1024)
+            if not self.data:
+                print("no data recived")
+                break
+        
+            self.servo_x_angle, self.servo_y_angle = map(float, self.data.decode('utf-8').split(","))
+            print(f"Received angles X: {self.servo_x_angle}, Y: {self.servo_y_angle}")
+
+    def close_connection(self):
+        self.conn.close()
+        print("Connection closed")
 
 
+def main():
+    servo = Servo()
+    connection = Connection()
+
+    try:
+        while True:
+            connection.get_data()
+            if connection.servo_x_angle is not None and connection.servo_y_angle is not None:
+                servo.set_servo_angle(servo.servo_x, connection.servo_x_angle)
+                servo.set_servo_angle(servo.servo_y, connection.servo_y_angle)
+
+    except KeyboardInterrupt:
+        print("Interrupt received, stopping...")
+    except Exception as e:
+        print(e)
+    finally:
+        servo.stop_servo()
+        connection.close_connection()
+
+if __name__ == '__main__':
+    main()
