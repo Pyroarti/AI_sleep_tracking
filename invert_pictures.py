@@ -3,8 +3,8 @@ import os
 
 # Takes all images in a folder and inverts them to make more data
 
-input_folder = r'C:\Users\rober\Desktop\Programmering\Python\Github\Blink_trackV2\data\open_to_rotate'
-output_folder = r'C:\Users\rober\Desktop\Programmering\Python\Github\Blink_trackV2\data\open_rotated'
+input_folder = r''
+output_folder = r''
 
 for filename in os.listdir(input_folder):
     if filename.endswith(".jpg") or filename.endswith(".png"):
@@ -13,5 +13,5 @@ for filename in os.listdir(input_folder):
         
         flipped_img = img.transpose(Image.FLIP_LEFT_RIGHT)
 
-        flipped_img_path = os.path.join(output_folder, 'flipppfpped'+filename)
+        flipped_img_path = os.path.join(output_folder, 'flipped'+filename)
         flipped_img.save(flipped_img_path)

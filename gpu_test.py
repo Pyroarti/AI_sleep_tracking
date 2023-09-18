@@ -1,6 +1,4 @@
 import tensorflow as tf
-import winsound
-
 
 # Check if GPU is available
 gpu_devices = tf.config.list_physical_devices('GPU')
