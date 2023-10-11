@@ -2,14 +2,13 @@ import socket
 import RPi.GPIO as GPIO
 import time
 
-RASPBERRY_PI_IP = '192.168.0.124'
+RASPBERRY_PI_IP = '192.168.0.137'
 RASPBERRY_PI_PORT = 65432
-
-GPIO.setmode(GPIO.BCM)
 
 servo_y_pin = 18
 servo_x_pin = 17
 
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(servo_y_pin, GPIO.OUT)
 GPIO.setup(servo_x_pin, GPIO.OUT)
 
